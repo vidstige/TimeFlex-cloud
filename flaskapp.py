@@ -2,14 +2,14 @@ import os
 from datetime import datetime
 from flask import Flask, request, Response, flash, url_for, redirect, \
      render_template, abort, send_from_directory
-from flask.ext.login import LoginManager, UserMixin, login_required
+from flask.ext.login import LoginManager, UserMixin, login_required, login_user
 
 app = Flask(__name__)
 app.config.from_pyfile('flaskapp.cfg')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-#login_manager.login_view = 'login'
+login_manager.login_view = 'login'
 
 class User(UserMixin):
     # proxy for a database of users
@@ -28,23 +28,31 @@ class User(UserMixin):
         return User(id, user_entry[1])
 
 
-@login_manager.request_loader
-def load_user(request):
-    token = request.headers.get('Authorization')
-    if token is None:
-        token = request.args.get('token')
+def get_user_for(username, passphrase):
+    # Todo also check password
+    return load_user(username)
 
-    if token is not None:
-        username,password = token.split(":") # naive token
-        user = User.get(username)
-        if user and user.password == password:
-            return user
-    return None
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        user = get_user_for(request.form['username'], request.form['password'])
+        if user:
+            login_user(user)
+            flash("Logged in successfully!", category='success')
+            return redirect(request.args.get("next") or url_for("write"))
+        flash("Wrong username or password!", category='error')
+    return render_template('login.html')
+
+
+@login_manager.user_loader
+def load_user(username):
+    return User.get(username)
 
 
 @app.route("/", methods=["GET"])
 def index():
-    return Response(response="Hello World!", status=200)
+    return render_template('index.html')
 
 
 @app.route("/protected/", methods=["GET"])
@@ -52,10 +60,6 @@ def index():
 def protected():
     return Response(response="Hello Protected World!", status=200)
 
-
-#@app.route('/')
-#def index():
-#    return render_template('index.html')
 
 @app.route('/<path:resource>')
 def serveStaticResource(resource):
