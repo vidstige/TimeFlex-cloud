@@ -6,5 +6,5 @@ setup(name='TimeFlex-cloud',
       author='Samuel Carlsson',
       author_email='samuel.carlsson@gmail.com',
       url='http://www.python.org/sigs/distutils-sig/',
-      install_requires=['Flask>=0.10.1', 'Flask-Login>=0.3.2'],
+      install_requires=['Flask>=0.10.1', 'Flask-Login>=0.3.2', 'pymongo>=3.3.0'],
      )
