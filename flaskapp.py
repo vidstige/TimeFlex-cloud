@@ -16,12 +16,13 @@ login_manager.login_view = 'login'
 
 
 # mongodb config. Allows for easy testing with local mongodb
-MONGODB_HOST=os.getenv('OPENSHIFT_MONGODB_DB_HOST', 'localhost')
-MONGODB_PORT=os.getenv('OPENSHIFT_MONGODB_DB_PORT', '27017')
-
-def connect_to_mongodb():
-    connection_string = 'mongodb://{host}:{port}/'.format(host=MONGODB_HOST, port=MONGODB_PORT)
-    return MongoClient(connection_string)
+connection_string = 'mongodb://localhost:27017'
+if 'OPENSHIFT_MONGODB_DB_PASSWORD' in os.environ:
+    connection_string = "mongodb://" + os.environ['OPENSHIFT_MONGODB_DB_USERNAME'] + ":" +
+    os.environ['OPENSHIFT_MONGODB_DB_PASSWORD'] + "@" +
+    os.environ['OPENSHIFT_MONGODB_DB_HOST'] + ':' +
+    os.environ['OPENSHIFT_MONGODB_DB_PORT']' + '/' +
+    os.environ['OPENSHIFT_APP_NAME'];
 
 
 class User(UserMixin):
@@ -37,7 +38,7 @@ class User(UserMixin):
 
     @classmethod
     def get(cls, id, password=None):
-        client = connect_to_mongodb()
+        client = MongoClient(connection_string)
         users = client['timeflex']['users']
         if password:
             password_hash = hashlib.md5(password).hexdigest()
@@ -49,7 +50,7 @@ class User(UserMixin):
     @classmethod
     def register(cls, id, name, email, password):
         password_hash = hashlib.md5(password).hexdigest()
-        client = connect_to_mongodb()
+        client = MongoClient(connection_string)
         users = client['timeflex']['users']
         users.insert_one({
             'username': id,
