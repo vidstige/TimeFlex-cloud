@@ -6,6 +6,7 @@ from flask import Flask, request, Response, flash, url_for, redirect, \
 from flask.ext.login import LoginManager, UserMixin, login_required, login_user
 from pymongo import MongoClient
 import hashlib
+from bson.json_util import dumps
 
 app = Flask(__name__)
 app.config.from_pyfile('flaskapp.cfg')
@@ -101,6 +102,22 @@ def protected():
 def serveStaticResource(resource):
     return send_from_directory('static/', resource)
 
+
+# Upload punch in / punch outs
+@app.route('/api/punch/', methods=['POST'])
+def punch():
+    client = MongoClient(connection_string)
+    punches = client['timeflex']['punches']
+    punch = request.get_json(force=True)
+    punches.insert_one(punch)
+    return "OK"
+
+@app.route('/api/punch/', methods=['GET'])
+def list_punches():
+    client = MongoClient(connection_string)
+    punches = client['timeflex']['punches']
+    all_punches = punches.find()
+    return "\n".join([dumps(punch) for punch in all_punches])
 
 if __name__ == '__main__':
     app.run()
