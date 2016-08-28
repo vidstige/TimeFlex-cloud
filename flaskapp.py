@@ -18,12 +18,13 @@ login_manager.login_view = 'login'
 # mongodb config. Allows for easy testing with local mongodb
 connection_string = 'mongodb://localhost:27017'
 if 'OPENSHIFT_MONGODB_DB_PASSWORD' in os.environ:
-    connection_string = "mongodb://" + os.environ['OPENSHIFT_MONGODB_DB_USERNAME'] + ":" +
-    os.environ['OPENSHIFT_MONGODB_DB_PASSWORD'] + "@" +
-    os.environ['OPENSHIFT_MONGODB_DB_HOST'] + ':' +
-    os.environ['OPENSHIFT_MONGODB_DB_PORT']' + '/' +
-    os.environ['OPENSHIFT_APP_NAME'];
-
+    connection_string = 'mongodb://{user}:{password}@{host}:{port}/{app_name}'.format(
+        user=os.environ['OPENSHIFT_MONGODB_DB_USERNAME'],
+        password=os.environ['OPENSHIFT_MONGODB_DB_PASSWORD'],
+        host=os.environ['OPENSHIFT_MONGODB_DB_HOST'],
+        port=os.environ['OPENSHIFT_MONGODB_DB_PORT'],
+        app_name=os.environ['OPENSHIFT_APP_NAME']
+    )
 
 class User(UserMixin):
     def __init__(self, username, password):
