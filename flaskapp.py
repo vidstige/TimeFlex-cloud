@@ -109,7 +109,7 @@ def shift():
     entry = request.get_json(force=True)
     client = MongoClient(connection_string)
     table = client['timeflex']['shifts']
-    table.insert_one(punch)
+    table.insert_one(entry)
     return "OK"
 
 
