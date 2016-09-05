@@ -103,6 +103,24 @@ def serveStaticResource(resource):
     return send_from_directory('static/', resource)
 
 
+# Upload shifts
+@app.route('/api/shift/', methods=['POST'])
+def punch():
+    entry = request.get_json(force=True)
+    client = MongoClient(connection_string)
+    table = client['timeflex']['shifts']
+    table.insert_one(punch)
+    return "OK"
+
+
+@app.route('/api/shift/', methods=['GET'])
+def list_punches():
+    client = MongoClient(connection_string)
+    table = client['timeflex']['shift']
+    return "</br>\n".join([dumps(entry) for entry in table.find()])
+
+
+# Obsolete
 # Upload punch in / punch outs
 @app.route('/api/punch/', methods=['POST'])
 def punch():
