@@ -105,7 +105,7 @@ def serveStaticResource(resource):
 
 # Upload shifts
 @app.route('/api/shift/', methods=['POST'])
-def punch():
+def shift():
     entry = request.get_json(force=True)
     client = MongoClient(connection_string)
     table = client['timeflex']['shifts']
@@ -114,7 +114,7 @@ def punch():
 
 
 @app.route('/api/shift/', methods=['GET'])
-def list_punches():
+def list_shift():
     client = MongoClient(connection_string)
     table = client['timeflex']['shift']
     return "</br>\n".join([dumps(entry) for entry in table.find()])
