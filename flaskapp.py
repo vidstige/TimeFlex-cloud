@@ -116,7 +116,7 @@ def shift():
 @app.route('/api/shift/', methods=['GET'])
 def list_shift():
     client = MongoClient(connection_string)
-    table = client['timeflex']['shift']
+    table = client['timeflex']['shifts']
     return "</br>\n".join([dumps(entry) for entry in table.find()])
 
 
