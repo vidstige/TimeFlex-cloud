@@ -104,6 +104,23 @@ def serveStaticResource(resource):
 
 
 # Upload shifts
+@app.route('/api/scan/', methods=['POST'])
+def scan():
+    entry = request.get_json(force=True)
+    client = MongoClient(connection_string)
+    table = client['timeflex']['scans']
+    table.insert_one(entry)
+    return "OK"
+
+
+@app.route('/api/scan/', methods=['GET'])
+def list_scan():
+    client = MongoClient(connection_string)
+    table = client['timeflex']['scans']
+    return "</br>\n".join([dumps(entry) for entry in table.find()])
+
+
+# Upload shifts
 @app.route('/api/shift/', methods=['POST'])
 def shift():
     entry = request.get_json(force=True)
