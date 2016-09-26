@@ -1,6 +1,6 @@
 from __future__ import print_function
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Flask, request, Response, flash, url_for, redirect, \
      render_template, abort, send_from_directory
 from flask.ext.login import LoginManager, UserMixin, login_required, login_user
@@ -97,6 +97,12 @@ def index():
 def protected():
     return Response(response="Hello Protected World!", status=200)
 
+
+@app.route("/dashboard/")
+def dashboard():
+    today = datetime.now()
+    days = [today + timedelta(days=i) for i in range(-7 - today.weekday(), 14 - today.weekday())]
+    return render_template("dashboard.html", days=days)
 
 @app.route('/<path:resource>')
 def serveStaticResource(resource):
