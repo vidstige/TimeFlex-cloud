@@ -100,9 +100,30 @@ def protected():
 
 @app.route("/dashboard/")
 def dashboard():
+    def shifts_in_range(client, start, end):
+        return client['timeflex']['shifts'].find();  # TODO: Add date query here
+    
+    def hours_worked(day, shifts):
+        shifts = [shift for shift in shifts if shift['start'].startswith(day.strftime('%Y-%m-%d'))]
+        worked = timedelta(0)
+        date_format = "%Y-%m-%d %H:%M:%S"  # should have Z at end 
+        for shift in shifts:
+            start = datetime.strptime(shift['start'], date_format)
+            end = datetime.strptime(shift['end'], date_format)
+            worked += (end - start)
+
+        return worked
+
     today = datetime.now()
-    days = [today + timedelta(days=i) for i in range(-7 - today.weekday(), 14 - today.weekday())]
-    return render_template("dashboard.html", days=days)
+    client = MongoClient(connection_string)
+    shifts = shifts_in_range(client, today - timedelta(days=-7), today + timedelta(days=2))
+    shifts = [shift for shift in shifts]
+
+    date_range = (-7, 2)
+    days = [today + timedelta(days=i) for i in range(date_range[0], date_range[1])]
+    rows = [dict(day=d.strftime('%Y-%m-%d'), hours_worked=hours_worked(d, shifts)) for d in days]
+    return render_template("dashboard.html", rows=rows)
+
 
 @app.route('/<path:resource>')
 def serveStaticResource(resource):

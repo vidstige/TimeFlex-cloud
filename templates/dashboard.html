@@ -1,8 +1,11 @@
 
 <html>
 
-{% for day in days %}
-<p>{{ day }}</p>
+<table>
+{% for row in rows %}
+<tr><td>{{ row.day }}</td><td>{{ row.hours_worked }}h</td></tr>
 {% endfor %}
+
+</table>
 
 </html>
